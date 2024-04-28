@@ -22,11 +22,14 @@ function renderAllShapes() {
         var torsoCoordMatBackend = new Matrix4(torso.matrix);
         // right multiply leads to order: scale then translate
         torso.render();
+
         // Backend
         var backend = new Cube();
         backend.color = [156/255, 189/255, 238/255, 1.0];
         backend.matrix = torsoCoordMatBackend;
         backend.matrix.translate(0.01, 0, 0.7);
+        // Make torso come up rather than backend
+        //backend.matrix.rotate(g_testAngle, 1, 0, 0);
         backend.matrix.scale(0.98, 0.95, 0.5);
         var backendCoordMatBLS = new Matrix4(backend.matrix);
         var backendCoordMatBRS = new Matrix4(backend.matrix);
@@ -83,7 +86,7 @@ function renderAllShapes() {
         earLF.render();
 
         var earLF2 = new Cube();
-        earLF2.color = [246/255, 106/255, 82/255, 1];
+        earLF2.color = [200/255, 106/255, 82/255, 1];
         earLF2.matrix = earLFCoordMat;
         earLF2.matrix.translate(0.4, 0, 0);
         earLF2.matrix.rotate(-g_earAngle * 0.2, 0, 0, 1);
@@ -114,7 +117,7 @@ function renderAllShapes() {
         
 
         var earRF2 = new Cube();
-        earRF2.color = [246/255, 106/255, 82/255, 1];
+        earRF2.color = [200/255, 106/255, 82/255, 1];
         earRF2.matrix = earRFCoordMat;
         earRF2.matrix.translate(-0.4, 0, 0);
         earRF2.matrix.rotate(g_earAngle * 0.2, 0, 0, 1);
@@ -190,7 +193,7 @@ function renderAllShapes() {
         trunkTint.render();
 
         var trunk3 = new Cube();
-        trunk3.color = [95/255, 140/255, 200/255, 1.0];
+        trunk3.color = [90/255, 100/255, 100/255, 1.0];
         trunk3.matrix = trunk2CoordMat;
         trunk3.matrix.translate(0, -0.01, -0.3);
         trunk3.matrix.rotate(g_trunkAngle * 0.9, 1, 0, 0);

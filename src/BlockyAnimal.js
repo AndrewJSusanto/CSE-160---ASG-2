@@ -31,6 +31,8 @@ let u_FragColor;
 let u_ModelMatrix;
 let u_GlobalRotateMatrix;
 
+let cursorPosition = [0, 0];
+
 let g_selectedColor = [1.0, 1.0, 1.0, 1.0]
 let g_selectedSize = 5;
 let g_selectedType = POINT;
@@ -39,9 +41,10 @@ let g_globalAngle = 0;
 
 let idleAnimate = false;
 let flapAnimate = false;
+let trumpetAnimate = true;
 let g_legAngle = -10;
-let g_earAngle = 15;
-let g_trunkAngle = -20;
+let g_earAngle = 40;
+let g_trunkAngle = -35;
 let g_tailAngle = 0;
 let g_headAngle = 0;
 let g_testAngle = 0;
@@ -54,7 +57,6 @@ let greenSelect = [0.0, 1.0, 0.0, 1.0]
 let blueSelect = [0.0, 0.0, 1.0, 1.0]
 let savedSelect = [0.0, 0.0, 0.0, 1.0]
 var g_shapesList = [];
-
 
 function setupWebGL() {
     // Retrieve <canvas> element
@@ -106,8 +108,64 @@ function connectVariablesToGLSL() {
     gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
 }
 
+
+
 function addActionsForHTMLUI() {
-    // Button Events (Shape Type)
+    // Mouse rotation
+        // Track mousedown, mouseup, mousemove
+    var currpos = {
+        x: 0,
+        y: 0,
+    }
+    var downFlag = false;
+    delta = 100;
+    var dx, dy = 0;
+
+    canvas.onmousedown = function (down) {
+        console.log('Mouse Down')
+        downFlag = true;
+        let omd = convertCoordinatesEventToGL(down)
+        currpos.x = omd[0];
+        currpos.y = omd[1];
+        console.log('x: ' + currpos.x + ' y: ' + currpos.y);
+    }
+    canvas.onmouseup = function (up) {
+        console.log('Mouse Up')
+        downFlag = false;
+        // newpos = convertCoordinatesEventToGL(up);
+        // dx = newpos[0] - currpos.x;
+        // dy = newpos[1] - currpos.y;
+        // g_globalAngle += (dx * delta);
+        // console.log('New Angle' + g_globalAngle);
+    }
+    canvas.onmousemove = function (move) {
+        //console.log('Angle' + g_globalAngle);
+        if (!downFlag) {
+            return;
+        }
+        else {
+            newpos = convertCoordinatesEventToGL(move);
+            dx = newpos[0] - currpos.x;
+            dy = newpos[1] - currpos.y;
+            g_globalAngle += (dx * delta);
+            console.log('New Angle' + g_globalAngle);
+            currpos.x = newpos[0];
+            currpos.y = newpos[1];
+            dx = 0;
+            dy = 0;
+        }
+    }
+
+    // Shift detection
+    canvas.addEventListener("click", function (e) {
+        if (e.shiftKey) {
+            console.log("Shift. Yay!")
+            trumpetAnimate = true;
+            idleAnimate = false;
+            flapAnimate = false;
+        }
+    })
+
 
     // Angle Slider
     document.getElementById('angleSlider').addEventListener('mousemove',
@@ -179,8 +237,8 @@ function main() {
 
     // Register function (event handler) to be called on a mouse press
     // anonymous function, on event ev click() function 
-    canvas.onmousedown = click;
-    canvas.onmousemove = function(ev) { if(ev.buttons==1){ click(ev) }};
+    //canvas.onmousedown = click;
+    //canvas.onmousemove = function(ev) { if(ev.buttons==1){ click(ev) }};
 
     // Specify the color for clearing <canvas>
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -200,40 +258,40 @@ function click(ev) {
     // Extract the event click and return it in WebGL coords
     [x, y] = convertCoordinatesEventToGL(ev);
 
-    let point;
-    switch (g_selectedType) {
-        case POINT:
-            point = new Point();
-            break;
-        case TRIANGLE:
-            point = new Triangle();
-            break;
-        case CIRCLE:
-            point = new Circle();
-            point.sides = g_selectedSides;
-            break;
-        case ASSORTED:
-            let value = Math.floor(Math.random() * 3)
-            if(value == POINT) {
-                point = new Point();
-            }
-            else if (value == TRIANGLE) {
-                point = new Triangle();
-            }
-            else if (value == CIRCLE) {
-                point = new Circle();
-                point.sides = g_selectedSides;
-            }
-            break;
-    }
+    // let point;
+    // switch (g_selectedType) {
+    //     case POINT:
+    //         point = new Point();
+    //         break;
+    //     case TRIANGLE:
+    //         point = new Triangle();
+    //         break;
+    //     case CIRCLE:
+    //         point = new Circle();
+    //         point.sides = g_selectedSides;
+    //         break;
+    //     case ASSORTED:
+    //         let value = Math.floor(Math.random() * 3)
+    //         if(value == POINT) {
+    //             point = new Point();
+    //         }
+    //         else if (value == TRIANGLE) {
+    //             point = new Triangle();
+    //         }
+    //         else if (value == CIRCLE) {
+    //             point = new Circle();
+    //             point.sides = g_selectedSides;
+    //         }
+    //         break;
+    // }
 
-    point.position = [x, y];
-    point.color = g_selectedColor.slice();
-    point.size = g_selectedSize;
-    g_shapesList.push(point)
+    // point.position = [x, y];
+    // point.color = g_selectedColor.slice();
+    // point.size = g_selectedSize;
+    // g_shapesList.push(point)
     
-    // Re-render all shapes drawn so far
-    renderAllShapes();
+    // // Re-render all shapes drawn so far
+    // renderAllShapes();
 }
 
 function convertCoordinatesEventToGL(ev) {
@@ -266,12 +324,19 @@ function animate() {
         g_trunkAngle = 5 * Math.sin(g_seconds);
         g_tailAngle = 30 * Math.sin(g_seconds);
     }
+
     if(flapAnimate) {
-        g_earAngle = 30 * Math.sin(g_seconds * 2);
+        g_earAngle = 30 * Math.cos(g_seconds * 2.1);
+        g_headAngle = 10 * Math.cos(g_seconds * 2);
+        g_trunkAngle = 10 * Math.sin(g_seconds * 2);
         g_legAngle = -10 * Math.abs(Math.sin(g_seconds));
-        g_headAngle = 10 * Math.sin(g_seconds * 2);
         g_tailAngle = 1080 * Math.sin(g_seconds) * 2.5;
     }
+
+    if(trumpetAnimate) {
+        //g_headAngle = 40 * Math.sin(g_seconds);
+    }
+
 }
 
 function sendTextToHTML(text, htmlID) {
