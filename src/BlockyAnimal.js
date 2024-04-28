@@ -2,9 +2,10 @@
 // Vertex shader program
 var VSHADER_SOURCE =    `
   attribute vec4 a_Position;
+  uniform mat4 u_ModelMatrix;
+  uniform mat4 u_GlobalRotateMatrix;
   void main() {
-    gl_Position = a_Position;
-    gl_PointSize = 10.0;
+    gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
   }`
 
 // Fragment shader program
@@ -27,12 +28,20 @@ let canvas;
 let gl;
 let a_Position;
 let u_FragColor;
-let u_Size;
+let u_ModelMatrix;
+let u_GlobalRotateMatrix;
 
 let g_selectedColor = [1.0, 1.0, 1.0, 1.0]
 let g_selectedSize = 5;
 let g_selectedType = POINT;
 let g_selectedSides = 3;
+let g_globalAngle = 0;
+
+let g_legAngle = -10;
+let g_earAngle = 15;
+let g_trunkAngle = -20;
+let g_headAngle = 0;
+let g_testAngle = 0;
 
 let redSelect = [1.0, 0.0, 0.0, 1.0]
 let greenSelect = [0.0, 1.0, 0.0, 1.0]
@@ -52,6 +61,8 @@ function setupWebGL() {
         console.log('Failed to get the rendering context for WebGL');
         return;
     }
+
+    gl.enable(gl.DEPTH_TEST);
 }
 
 function connectVariablesToGLSL() {
@@ -73,103 +84,48 @@ function connectVariablesToGLSL() {
         return;
     }
 
-    u_Size = gl.getUniformLocation(gl.program, 'u_Size');
-    if (!u_Size) {
-        console.log('Failed to get the storage location of u_Size');
+    u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
+    if (!u_ModelMatrix) {
+        console.log('Failed to get the storage location of u_ModelMatrix');
         return;
     }
+
+    u_GlobalRotateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalRotateMatrix');
+    if (!u_GlobalRotateMatrix) {
+        console.log('Failed to get the storage location of u_GlobalRotateMatrix');
+        return;
+    } 
+
+    var identityM = new Matrix4();
+    gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
 }
 
 function addActionsForHTMLUI() {
     // Button Events (Shape Type)
 
-    // Clear Canvas
-    document.getElementById('clear').onclick = function() {
-        g_shapesList = [];
-        renderAllShapes();
-    }
-    // Undo Button
-    undoButton = document.getElementById('undo');
-    undoButton.addEventListener('mousedown', function(ev) {
-        if(isDown == false) {
-            isDown = true;
-            setInterval(function() {
-                if(isDown == true) {
-                    g_shapesList.pop()
-                    renderAllShapes();
-                }
-            }, 100)
-        }
-    })
-    undoButton.addEventListener('mouseup', function(ev) {
-        isDown = false;
-    })
+    // Angle Slider
+    document.getElementById('angleSlider').addEventListener('mousemove',
+        function() {g_globalAngle = this.value; renderAllShapes(); });
 
-    // Background Fill
-    document.getElementById('fillButton').onclick = function() {
-        let colors = g_selectedColor.slice();
-        gl.clearColor(colors[0], colors[1], colors[2], colors[3])
-        renderAllShapes();
-    }
+    // Leg Segment Slider
+    document.getElementById('legSlider').addEventListener('mousemove',
+        function() {g_legAngle = this.value; renderAllShapes(); });
 
-    // Change shape
-    document.getElementById('pointButton').onclick = function() {
-        g_selectedType = POINT;
-    }
-    document.getElementById('triButton').onclick = function() {
-        g_selectedType = TRIANGLE;
-    }
-    document.getElementById('circButton').onclick = function() {
-        g_selectedType = CIRCLE;
+    // Ear Segment Slider
+    document.getElementById('earSlider').addEventListener('mousemove',
+        function() {g_earAngle = this.value; renderAllShapes(); })
 
-    }
-    document.getElementById('assortedButton').onclick = function() {
-        g_selectedType = ASSORTED;
-    }
+    // Trunk Segments Slider
+    document.getElementById('trunkSlider').addEventListener('mousemove',
+        function() {g_trunkAngle = this.value; renderAllShapes(); })
     
-    // Color Drop Down
-    document.getElementById('saveButton').onclick = function() {
-        savedSelect = g_selectedColor
-    }
-    document.getElementById('selector').onchange = function() {
-        var value = this.value;
-        console.log(value)
-        if(value == "Red") {
-            g_selectedColor = redSelect
-        }
-        else if(value == "Green") {
-            g_selectedColor = greenSelect
-        }
-        else if(value == "Blue") {
-            g_selectedColor = blueSelect
-        }
-        else {
-            g_selectedColor = savedSelect
-        }
-    }
-    // Color Sliders
-    document.getElementById('redSlider').addEventListener('mouseup',
-        function() {g_selectedColor[0] = this.value / 100; });
-    document.getElementById('grnSlider').addEventListener('mouseup',
-        function() {g_selectedColor[1] = this.value / 100; });
-    document.getElementById('bluSlider').addEventListener('mouseup',
-        function() {g_selectedColor[2] = this.value / 100; });
-    document.getElementById('alpSlider').addEventListener('mouseup',
-        function() {g_selectedColor[3] = this.value / 100; });
-
-    // Size
-    document.getElementById('sizeSlider').addEventListener('mouseup',
-        function() {g_selectedSize = this.value; });
+    // Head Segment Slider
+    document.getElementById('headSlider').addEventListener('mousemove',
+        function() {g_headAngle = this.value; renderAllShapes(); })
     
-    // Sides
-    document.getElementById('sidesSlider').addEventListener('mouseup',
-        function() {g_selectedSides = this.value; });
-
-    // Drawing
-    document.getElementById('drawing').onclick = function() {
-        drawSlide()
-        renderAllShapes
-    }
+    // Test
+    document.getElementById('testSlider').addEventListener('mousemove',
+        function() {g_testAngle = this.value; renderAllShapes(); })
 }
 
 function main() {
@@ -190,7 +146,8 @@ function main() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     // Clear <canvas>
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    //gl.clear(gl.COLOR_BUFFER_BIT);
+    renderAllShapes();
 }
 
 //  var g_points = [];  // The array for the position of a mouse press
@@ -232,8 +189,6 @@ function click(ev) {
     point.color = g_selectedColor.slice();
     point.size = g_selectedSize;
     g_shapesList.push(point)
-    console.log(point.position)
-    console.log(point.color)
     
     // Re-render all shapes drawn so far
     renderAllShapes();
@@ -249,31 +204,10 @@ function convertCoordinatesEventToGL(ev) {
     return ([x,y]);
 }
 
-function renderAllShapes() {
-    // Clear <canvas>
-    var startTime = performance.now();
+function renderScene() {
+    renderAllShapes();
 
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    var len = g_shapesList.length;
-    for(var i = 0; i < len; i++) {
-        g_shapesList[i].render();
-
-        // // Pass the position of a point to a_Position variable
-        // gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
-        // // Pass the color of a point to u_FragColor variable
-        // gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-        // // Draw
-        // gl.drawArrays(gl.POINTS, 0, 1);
-    }
-
-    var duration = performance.now() - startTime
-    sendTextToHTML("numdot " + len +
-                    " ms: " + Math.floor(duration) +
-                    " fps: " + Math.floor(10000/duration),
-                    "numdot");
 }
-
 function sendTextToHTML(text, htmlID) {
     var htmlElement = document.getElementById(htmlID);
     if (!htmlElement) {
@@ -281,32 +215,4 @@ function sendTextToHTML(text, htmlID) {
         return;
     }
     htmlElement.innerHTML = text;
-}
-
-function drawSlide() {
-    gl.uniform4f(u_FragColor, 0.0, 0.6, 0.8, 1.0)
-    // sky
-    drawTriangle([-1, -1, -1, 1, 1, 1])
-    drawTriangle([-1, -1, 1, -1, 1, 1])
-    // grass
-    gl.uniform4f(u_FragColor, 0.2, 1.0, 0.1, 1.0)
-    drawTriangle([-1, -1, -0.4, -0.4, -0.4, -1])
-    drawTriangle([-0.4, -1, -0.4, -0.4, 1, -0.4])
-    drawTriangle([1, -0.4, 1, -1, -0.4, -1])
-    gl.uniform4f(u_FragColor, 0.2, 1.0, 0.1, 0.7)
-    drawTriangle([0, 0, -1, 0, -1, -1])
-    drawTriangle([0, 0, 0.4, -0.4, -0.4, -0.4])
-    // slide
-    gl.uniform4f(u_FragColor, 1.0, 0.0, 0.0, 0.7)
-    drawTriangle([-0.04, 0.04, -0.25, 0.04, -0.25, -0.4])
-    drawTriangle([-0.04, 0.04, 0.25, 0.04, 0.25, -0.4])
-    gl.uniform4f(u_FragColor, 1.0, 0.0, 0.0, 0.8)
-    drawTriangle([-0.25, -0.4, 0.25, -0.4, -0.5, -0.6])
-    drawTriangle([0, -0.6, 0.25, -0.4, -0.5, -0.6])
-    gl.uniform4f(u_FragColor, 1.0, 0.0, 0.0, 0.85)
-    drawTriangle([-0.5, -0.6, 0, -0.6, 0.25, -0.8])
-    drawTriangle([-0.5, -0.6, -0.3, -0.8, 0.25, -0.8])
-    gl.uniform4f(u_FragColor, 1.0, 0.0, 0.0, 0.9)
-    drawTriangle([0.25, -0.8, -0.3, -0.8, -0.6, -1])
-    drawTriangle([0.25, -0.8, -0.1, -1, -0.6, -1])
 }

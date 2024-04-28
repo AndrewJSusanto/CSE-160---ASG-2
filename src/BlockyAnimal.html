@@ -2,61 +2,53 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Andrew Susanto - ASG 1</title>
+    <title>Andrew Susanto - ASG 2</title>
   </head>
 
   <body onload="main()">
-    <canvas id="webgl" width="400" height="400">
+    <canvas id="webgl" width="600" height="600">
     Please use a browser that supports "canvas"
     </canvas>
     <br>
-        <button type="button" id="clear">Clear Canvas</button>
-        <button type="button" id="undo">Hold to Undo</button>
     <br>
         <p id="numdot">numdot 0 ms: 0 fps: 0</p>
     <br>
     
-    <p>Shape Type: </p>
-    <button type="button" id="pointButton">Point    </button>
-    <button type="button" id="triButton">Triangle   </button>
-    <button type="button" id="circButton">Circle    </button>
-    <button type="button" id="assortedButton">Assorted  </button>
+    <p>
+      Camera Angle  <input type="range" min="-180" max="180" value="160" oninput="angleValue.innerText = this.value" class="slider" id="angleSlider">
+      <label id="angleValue">0</label>
+    </p>
+    <p>
+      Leg Segments  <input type="range" min="-50" max="50" value="-10" class="slider" id="legSlider">
+    </p>
+    <p>
+      Ear Segments <input type="range" min="-50" max="50" value="15" class="slider" id="earSlider">
+    </p>
+    <p>
+      Trunk Segments <input type="range" min="-50" max="50" value="-20" class="slider" id="trunkSlider">
+    </p>
+    <p>
+      Tail Segment <input type="range" min="-50" max="50" value="0" class="slider" id="tailSlider">
+    </p>
+    <p>
+      Head Segment <input type="range" min="-50" max="50" value="0" class="slider" id="headSlider">
+    </p>
+    <p>
+      Test Segment <input type="range" min="-50" max="50" value="0" class="slider" id="testSlider">
+    </p>
     <br>
-
-    <p>Shape Color: </p>
-        Red     <input type="range" min="0" max="100" value="100" class="slider" id="redSlider"/>
-        Green   <input type="range" min="0" max="100" value="100" class="slider" id="grnSlider"/>
-        Blue    <input type="range" min="0" max="100" value="100" class="slider" id="bluSlider"/> 
-        <button type="button" id="saveButton">Save Color</button>
-    <br>
-    <button type="button" id="fillButton">Background Fill</button>
-    <label id="savedcolors">Quick Select</label>
-        <select name="selector" id="selector">
-            <option disable selected value>Select</option>
-            <option id="redSelect">Red</option>
-            <option id="greenSelect">Green</option>
-            <option id="blueSelect">Blue</option>
-            <option id="savedSelect">Saved Color</option>
-        </select>
-    <br>
-    <p>Shape Properties: </p>
-    Shape Size  <input type="range" min="5" max="50" value="5" class="slider" id="sizeSlider"/>
-    Segment Count (Circles): <label id="rangeValue">3</label>
-                <input type="range" min="3" max="30" value="3" oninput="rangeValue.innerText = this.value" class="slider" id="sidesSlider"/>
-    Saturation  <input type="range" min="0" max="70" value="70" class="slider" id="alpSlider"/>
-    <br>
-    <br>
-    <button type="button" id='drawing'>Paint Drawing</button>
-    <p>Reference Image</p>
-    <img src="Slide.jpg" width="200" height="200">
     
      
     <script src="../lib/webgl-utils.js"></script>
     <script src="../lib/webgl-debug.js"></script>
     <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/cuon-matrix.js"></script>
     <script src="Point.js"></script>
     <script src="Triangle.js"></script>
     <script src="Circle.js"></script>
-    <script src="HelloPoint1.js"></script>
+    <script src="Cube.js"></script>
+    <script src="Sphere.js"></script>
+    <script src="build.js"></script>
+    <script src="BlockyAnimal.js"></script>
   </body>
 </html>
