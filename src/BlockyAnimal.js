@@ -37,11 +37,17 @@ let g_selectedType = POINT;
 let g_selectedSides = 3;
 let g_globalAngle = 0;
 
+let idleAnimate = false;
+let flapAnimate = false;
 let g_legAngle = -10;
 let g_earAngle = 15;
 let g_trunkAngle = -20;
+let g_tailAngle = 0;
 let g_headAngle = 0;
 let g_testAngle = 0;
+
+var g_startTime = performance.now()/1000.0;
+var g_seconds = performance.now()/1000.0 - g_startTime;
 
 let redSelect = [1.0, 0.0, 0.0, 1.0]
 let greenSelect = [0.0, 1.0, 0.0, 1.0]
@@ -118,7 +124,10 @@ function addActionsForHTMLUI() {
     // Trunk Segments Slider
     document.getElementById('trunkSlider').addEventListener('mousemove',
         function() {g_trunkAngle = this.value; renderAllShapes(); })
-    
+    // Tail Slider
+    document.getElementById('tailSlider').addEventListener('mousemove',
+        function() {g_tailAngle = this.value; renderAllShapes(); })
+
     // Head Segment Slider
     document.getElementById('headSlider').addEventListener('mousemove',
         function() {g_headAngle = this.value; renderAllShapes(); })
@@ -126,6 +135,37 @@ function addActionsForHTMLUI() {
     // Test
     document.getElementById('testSlider').addEventListener('mousemove',
         function() {g_testAngle = this.value; renderAllShapes(); })
+
+
+    // Buttons
+    // idleButton
+    idleAnimation = document.getElementById('idleButton');
+    idleAnimation.addEventListener('click', function (e) {
+        idleAnimate = true;
+        if(flapAnimate) {
+            flapAnimate = false;
+        }
+    })
+    // flapButton
+    flapAnimation = document.getElementById('flapButton');
+    flapAnimation.addEventListener('click', function (e) {
+        flapAnimate = true;
+        if(idleAnimate) {
+            idleAnimate = false
+        }
+    })
+    // clearAnimations
+    clearAnimations = document.getElementById('clearButton').addEventListener('click', function (e) {
+        flapAnimate = false;
+        idleAnimate = false;
+
+        g_legAngle = -10;
+        g_earAngle = 15;
+        g_trunkAngle = -20;
+        g_tailAngle = 0;
+        g_headAngle = 0;
+        g_testAngle = 0;
+    })
 }
 
 function main() {
@@ -147,7 +187,9 @@ function main() {
 
     // Clear <canvas>
     //gl.clear(gl.COLOR_BUFFER_BIT);
-    renderAllShapes();
+    // renderScene();
+
+    requestAnimationFrame(tick);
 }
 
 //  var g_points = [];  // The array for the position of a mouse press
@@ -204,10 +246,34 @@ function convertCoordinatesEventToGL(ev) {
     return ([x,y]);
 }
 
+function tick() {
+    // Update
+    g_seconds = performance.now()/1000.0 - g_startTime;
+
+    renderScene();
+    requestAnimationFrame(tick);
+    animate();
+}
+
 function renderScene() {
     renderAllShapes();
-
 }
+
+function animate() {
+    if(idleAnimate) {
+        //console.log(performance.now());
+        g_headAngle = 10 * Math.cos(g_seconds);
+        g_trunkAngle = 5 * Math.sin(g_seconds);
+        g_tailAngle = 30 * Math.sin(g_seconds);
+    }
+    if(flapAnimate) {
+        g_earAngle = 30 * Math.sin(g_seconds * 2);
+        g_legAngle = -10 * Math.abs(Math.sin(g_seconds));
+        g_headAngle = 10 * Math.sin(g_seconds * 2);
+        g_tailAngle = 1080 * Math.sin(g_seconds) * 2.5;
+    }
+}
+
 function sendTextToHTML(text, htmlID) {
     var htmlElement = document.getElementById(htmlID);
     if (!htmlElement) {

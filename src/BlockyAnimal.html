@@ -13,9 +13,14 @@
     <br>
         <p id="numdot">numdot 0 ms: 0 fps: 0</p>
     <br>
-    
+    <p>Current Animation: <label id="currentAnimation">None</label></p>
+    <div id="wrapper">
+      <button type="button" id="idleButton" onclick="currentAnimation.innerText = this.innerText">Idle Animation</button>
+      <button type="button" id="flapButton" onclick="currentAnimation.innerText = this.innerText">Flying Animation</button>
+      <button type="button" id="clearButton" onclick="currentAnimation.innerText = 'None'">Clear Animations</button>
+    </div>
     <p>
-      Camera Angle  <input type="range" min="-180" max="180" value="160" oninput="angleValue.innerText = this.value" class="slider" id="angleSlider">
+      Camera Angle  <input type="range" min="-180" max="180" value="0" oninput="angleValue.innerText = this.value" class="slider" id="angleSlider">
       <label id="angleValue">0</label>
     </p>
     <p>

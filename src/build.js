@@ -175,17 +175,26 @@ function renderAllShapes() {
         trunk2.matrix.rotate(g_trunkAngle, 1, 0, 0);
         trunk2.matrix.rotate(-3, 1, 0, 0);
         var trunk2CoordMat = new Matrix4(trunk2.matrix);
+        var trunk2CoordMat_tint = new Matrix4(trunk2.matrix);
         trunk2.matrix.translate(0, 0, 0);
         trunk2.matrix.scale(0.35, 0.18, 0.4);
         trunk2.matrix.translate(-0.5, -0.5, -0.85);
         trunk2.render();
 
+        var trunkTint = new Cube();
+        trunkTint.color = [246/255, 106/255, 82/255, 1];
+        trunkTint.matrix = trunk2CoordMat_tint;
+        trunkTint.matrix.translate(0, 0.09, -0.2);
+        trunkTint.matrix.scale(0.36, 0.05, 0.1);
+        trunkTint.matrix.translate(-0.5, -0.5, -0.5);
+        trunkTint.render();
+
         var trunk3 = new Cube();
-        trunk3.color = [95/255, 140/255, 150/255, 1.0];
+        trunk3.color = [95/255, 140/255, 200/255, 1.0];
         trunk3.matrix = trunk2CoordMat;
         trunk3.matrix.translate(0, -0.01, -0.3);
         trunk3.matrix.rotate(g_trunkAngle * 0.9, 1, 0, 0);
-        trunk3.matrix.scale(0.3, 0.12, 0.2);
+        trunk3.matrix.scale(0.3, 0.12, 0.15);
         trunk3.matrix.translate(-0.5, -0.5, -0.85);
         trunk3.render();
 
@@ -278,6 +287,7 @@ function renderAllShapes() {
         legBLT.matrix.translate(-0.4, -1.2, -0.15);
         legBLT.matrix.scale(0.6, 0.5, 1.2);
         legBLT.render();
+        
             // Back right - shoulder (?)
         var legBRS = new Cube();
         legBRS.color = [172/255, 213/255, 238/255, 1.0];
@@ -311,23 +321,23 @@ function renderAllShapes() {
         // Tail: animate tail as propeller? idk
         
         var tail = new Cube();
-        tail.color = [1, 1, 1, 1];
+        tail.color = [106/255, 115/255, 115/255, 1];
         tail.matrix = tailcapCoordMat;
-        tail.matrix.translate(0.4, 0.5, 0);
-        tail.matrix.rotate(-g_testAngle, 0, 0, 1);
+        tail.matrix.translate(0.4, 0.5, -0.05);
+        tail.matrix.rotate(-20, 1, 0, 0);
+        tail.matrix.rotate(-g_tailAngle, 0, 0, 1);
         var tailCoordMat = new Matrix4(tail.matrix);
         tail.matrix.scale(0.06, -1.0, 0.1);
         tail.matrix.translate(-0.5, 0, 5);
-        //tail.matrix.translate(-0.5, -0.5, -0.5);
         tail.render();
 
         var tailEnd = new Cube();
-        tailEnd.color = [1, 0, 1, 1];
+        tailEnd.color = [246/255, 106/255, 82/255, 1];
         tailEnd.matrix = tailCoordMat;
-        tail.matrix.translate(0.5, 1, 0.5);
-        tail.matrix.scale(1.5, 0.25, 2);
-        tail.matrix.translate(-0.5, -0.5, -0.5);
-        tail.render();
+        tailEnd.matrix.translate(0, -1, 0.55);
+        tailEnd.matrix.scale(0.15, 0.15, 0.15);
+        tailEnd.matrix.translate(-0.5, -0.5, -0.5);
+        tailEnd.render();
 
 
 
