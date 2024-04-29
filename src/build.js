@@ -166,6 +166,7 @@ function renderAllShapes() {
         trunk.matrix = headCoordMat_trunk;
         trunk.matrix.translate(0, 0.12, -0.3);
         trunk.matrix.rotate(g_trunkAngle * 0.5, 1, 0, 0);
+        trunk.matrix.rotate(g_trunk1Angle, 1, 0, 0); 
         trunk.matrix.rotate(-3, 1, 0, 0);
         var trunk1CoordMat = new Matrix4(trunk.matrix);
         trunk.matrix.scale(0.4, 0.2, 0.2);
@@ -176,6 +177,7 @@ function renderAllShapes() {
         trunk2.color = [172/255, 213/255, 238/255, 1.0];
         trunk2.matrix = trunk1CoordMat;
         trunk2.matrix.rotate(g_trunkAngle, 1, 0, 0);
+        trunk2.matrix.rotate(g_trunk2Angle, 1, 0, 0);
         trunk2.matrix.rotate(-3, 1, 0, 0);
         var trunk2CoordMat = new Matrix4(trunk2.matrix);
         var trunk2CoordMat_tint = new Matrix4(trunk2.matrix);
@@ -197,6 +199,7 @@ function renderAllShapes() {
         trunk3.matrix = trunk2CoordMat;
         trunk3.matrix.translate(0, -0.01, -0.3);
         trunk3.matrix.rotate(g_trunkAngle * 0.9, 1, 0, 0);
+        trunk3.matrix.rotate(g_trunk3Angle, 1, 0, 0);
         trunk3.matrix.scale(0.3, 0.12, 0.15);
         trunk3.matrix.translate(-0.5, -0.5, -0.85);
         trunk3.render();
@@ -290,7 +293,7 @@ function renderAllShapes() {
         legBLT.matrix.translate(-0.4, -1.2, -0.15);
         legBLT.matrix.scale(0.6, 0.5, 1.2);
         legBLT.render();
-        
+
             // Back right - shoulder (?)
         var legBRS = new Cube();
         legBRS.color = [172/255, 213/255, 238/255, 1.0];
@@ -344,7 +347,7 @@ function renderAllShapes() {
 
 
 
-    var duration = performance.now() - startTime
+    var duration = performance.now() - startTime;
     sendTextToHTML(" ms: " + Math.floor(duration) +
                     " fps: " + Math.floor(10000/duration),
                     "numdot");
